@@ -1,0 +1,305 @@
+/* ==========================================================
+   Theme colors (change these to restyle the whole site)
+   ========================================================== */
+:root {
+  --bg: #fdf8f2;          /* warm cream background */
+  --card: #ffffff;        /* card background */
+  --text: #2d2a26;        /* main text */
+  --muted: #7a7068;       /* secondary text */
+  --primary: #e4572e;     /* tomato red accent */
+  --primary-dark: #c8431d;
+  --tag-bg: #fde9df;      /* light accent for tags */
+  --radius: 14px;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Basic reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ==========================================================
+   FEATURE 1: Header + Search bar
+   ========================================================== */
+.header {
+  text-align: center;
+  padding: 48px 16px 32px;
+  background: linear-gradient(135deg, #fff1e6, #fde2d4);
+}
+
+.title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.4rem;
+  color: var(--primary);
+}
+
+.tagline {
+  color: var(--muted);
+  margin: 8px 0 24px;
+}
+
+.search-form {
+  display: flex;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0; /* stops the input from overflowing on small screens */
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+}
+
+.search-btn {
+  padding: 14px 26px;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-btn:hover {
+  background: var(--primary-dark);
+}
+
+/* ==========================================================
+   Main content area
+   ========================================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* ==========================================================
+   FEATURE 3: Status messages
+   ========================================================== */
+.status {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin-bottom: 24px;
+}
+
+.status.error {
+  color: var(--primary-dark);
+}
+
+/* ==========================================================
+   FEATURE 2: Recipe cards grid
+   Mobile first: 1 column, then more columns on bigger screens
+   ========================================================== */
+.results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 600px) {
+  .results { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .results { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1150px) {
+  .results { grid-template-columns: repeat(4, 1fr); }
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Lift the card on hover or keyboard focus */
+.card:hover,
+.card:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.card-body {
+  padding: 14px 16px 18px;
+}
+
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--primary-dark);
+  background: var(--tag-bg);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-right: 4px;
+}
+
+/* ==========================================================
+   FEATURE 4: Recipe details popup (modal)
+   ========================================================== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+/* Used to hide the modal */
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  position: relative;
+  background: var(--card);
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto; /* scroll long recipes inside the popup */
+  border-radius: var(--radius);
+  animation: pop 0.2s ease-out;
+}
+
+@keyframes pop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.modal-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-info {
+  padding: 20px 24px 28px;
+}
+
+.modal-info h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.modal-info h3 {
+  color: var(--primary);
+  margin: 22px 0 10px;
+}
+
+/* Ingredients in two columns on wider screens */
+.ingredients {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px 20px;
+}
+
+@media (min-width: 600px) {
+  .ingredients { grid-template-columns: 1fr 1fr; }
+}
+
+.ingredients li {
+  padding: 6px 0;
+  border-bottom: 1px dashed #eadfd6;
+}
+
+.ingredients .measure {
+  color: var(--muted);
+}
+
+.steps {
+  padding-left: 22px;
+}
+
+.steps li {
+  margin-bottom: 10px;
+}
+
+.video-link {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.video-link:hover {
+  background: var(--primary-dark);
+}
+
+/* ==========================================================
+   FEATURE 5: Small-screen tweaks
+   ========================================================== */
+@media (max-width: 480px) {
+  .title { font-size: 1.9rem; }
+  .search-btn { padding: 14px 18px; }
+  .modal-info { padding: 16px 18px 24px; }
+}

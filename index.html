@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Finder</title>
+
+  <!-- Google Fonts: a warm serif for headings, a clean sans-serif for text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ========== FEATURE 1: Header + Search bar ========== -->
+  <header class="header">
+    <h1 class="title">🍲 Recipe Finder</h1>
+    <p class="tagline">Search by recipe name or ingredient and discover something delicious.</p>
+
+    <!-- Using a <form> lets both the button and the Enter key trigger a search -->
+    <form id="search-form" class="search-form">
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="e.g. pasta, chicken, salmon..."
+        aria-label="Search recipes"
+        autocomplete="off"
+      />
+      <button type="submit" class="search-btn">Search</button>
+    </form>
+  </header>
+
+  <main class="container">
+    <!-- ========== FEATURE 3: Status messages (loading / empty / error) ========== -->
+    <p id="status" class="status"></p>
+
+    <!-- ========== FEATURE 2: Recipe cards are inserted here by script.js ========== -->
+    <section id="results" class="results"></section>
+  </main>
+
+  <!-- ========== FEATURE 4: Recipe details popup (hidden by default) ========== -->
+  <div id="modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
+      <!-- Recipe details are inserted here by script.js -->
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
