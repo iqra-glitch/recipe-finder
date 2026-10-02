@@ -185,3 +185,51 @@ modal.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
 });
+
+// ==========================================================
+// FEATURE 6: Category filter buttons
+// ==========================================================
+const categoriesEl = document.getElementById("categories");
+
+// One listener on the container handles clicks on every category button
+categoriesEl.addEventListener("click", (event) => {
+  const button = event.target.closest(".category-btn");
+  if (!button) return;
+
+  setActiveCategory(button);
+  filterByCategory(button.dataset.category);
+});
+
+// Fetch all recipes in a category and show them as cards
+async function filterByCategory(category) {
+  showStatus(`Loading ${category} recipes...`);
+  resultsEl.innerHTML = ""; // clear old results
+
+  try {
+    const meals = await fetchMeals(`${API_BASE}/filter.php?c=${encodeURIComponent(category)}`);
+
+    if (!meals) {
+      showStatus(`No recipes found in "${category}".`);
+      return;
+    }
+
+    // This endpoint doesn't return the category name, so add it back for the card tag
+    const mealsWithCategory = meals.map((meal) => ({ ...meal, strCategory: category }));
+
+    showStatus(`Found ${meals.length} ${category} recipe${meals.length > 1 ? "s" : ""}`);
+    displayRecipes(mealsWithCategory); // reuse the same cards as search results
+  } catch (error) {
+    console.error(error);
+    showStatus("Something went wrong. Please check your internet connection and try again.", true);
+  }
+}
+
+// Highlight the clicked button (pass null to clear the highlight)
+function setActiveCategory(activeButton) {
+  categoriesEl.querySelectorAll(".category-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn === activeButton);
+  });
+}
+
+// When the user searches instead, remove the category highlight
+searchForm.addEventListener("submit", () => setActiveCategory(null));
