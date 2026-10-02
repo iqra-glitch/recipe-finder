@@ -233,3 +233,73 @@ function setActiveCategory(activeButton) {
 
 // When the user searches instead, remove the category highlight
 searchForm.addEventListener("submit", () => setActiveCategory(null));
+
+// ==========================================================
+// FEATURE 7: Area (country) filter dropdown
+// ==========================================================
+const areaSelect = document.getElementById("area-select");
+
+// Fill the dropdown with the area list from the API (runs once on page load)
+async function loadAreas() {
+  try {
+    const areas = await fetchMeals(`${API_BASE}/list.php?a=list`);
+    if (!areas) throw new Error("No areas returned");
+
+    // Each item looks like { strArea: "Indian", strCountry: "India" }.
+    // We use the country name because the API finds recipes with it reliably
+    // (e.g. "India" works but "Indian" returns nothing).
+    const options = areas
+      .map((area) => `<option value="${area.strCountry}">${area.strCountry}</option>`)
+      .join("");
+
+    areaSelect.innerHTML = `<option value="">🌍 Filter by country</option>${options}`;
+  } catch (error) {
+    // If the list fails, keep the rest of the page working
+    console.error(error);
+    areaSelect.innerHTML = `<option value="">Couldn't load countries</option>`;
+    areaSelect.disabled = true;
+  }
+}
+
+// When a country is selected, show its recipes
+areaSelect.addEventListener("change", () => {
+  const country = areaSelect.value;
+  if (!country) return; // placeholder option selected
+
+  setActiveCategory(null); // clear any highlighted category button
+  filterByArea(country);
+});
+
+// Fetch all recipes for one country and show them as cards
+async function filterByArea(country) {
+  showStatus(`Loading recipes from ${country}...`);
+  resultsEl.innerHTML = ""; // clear old results
+
+  try {
+    const meals = await fetchMeals(`${API_BASE}/filter.php?a=${encodeURIComponent(country)}`);
+
+    // Many countries in the list don't have any recipes yet
+    if (!meals) {
+      showStatus(`No recipes found for ${country} yet — TheMealDB doesn't have recipes for every country.`);
+      return;
+    }
+
+    // Add the country name so each card shows it as a tag
+    const mealsWithArea = meals.map((meal) => ({ ...meal, strArea: country }));
+
+    showStatus(`Found ${meals.length} recipe${meals.length > 1 ? "s" : ""} from ${country}`);
+    displayRecipes(mealsWithArea); // reuse the same cards as search results
+  } catch (error) {
+    console.error(error);
+    showStatus("Something went wrong. Please check your internet connection and try again.", true);
+  }
+}
+
+// Reset the dropdown when the user picks a category or searches instead
+categoriesEl.addEventListener("click", (event) => {
+  if (event.target.closest(".category-btn")) areaSelect.value = "";
+});
+searchForm.addEventListener("submit", () => (areaSelect.value = ""));
+
+// Load the countries as soon as the page opens
+loadAreas();
