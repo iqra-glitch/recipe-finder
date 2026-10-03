@@ -442,3 +442,54 @@ areaSelect.addEventListener("change", () => {
 
 // Show the saved count as soon as the page opens
 favoritesCountEl.textContent = favorites.length;
+
+// ==========================================================
+// FEATURE 9: Random recipes on page load
+// ==========================================================
+const RANDOM_COUNT = 12; // 12 fills 1, 2, 3 or 4 grid columns evenly
+let userHasChosen = false; // becomes true once the user searches or picks a filter
+
+// If the user searches or filters before the random recipes arrive,
+// remember it so the late random results don't replace their results
+searchForm.addEventListener("submit", () => (userHasChosen = true));
+categoriesEl.addEventListener("click", (event) => {
+  if (event.target.closest(".category-btn")) userHasChosen = true;
+});
+areaSelect.addEventListener("change", () => {
+  if (areaSelect.value) userHasChosen = true;
+});
+favoritesBtn.addEventListener("click", () => (userHasChosen = true)); // same for the Favorites view
+
+// Fetch several random recipes and show them as cards
+async function loadRandomRecipes() {
+  showStatus("Loading some recipe ideas...");
+
+  // random.php returns only ONE recipe per call, so make several calls at the same time.
+  // allSettled waits for all of them, even if a few fail.
+  const requests = [];
+  for (let i = 0; i < RANDOM_COUNT; i++) {
+    requests.push(fetchMeals(`${API_BASE}/random.php`));
+  }
+  const results = await Promise.allSettled(requests);
+
+  if (userHasChosen) return; // the user already moved on, so keep their results
+
+  // Keep the recipes that loaded, skipping duplicates (the same recipe can come back twice)
+  const meals = [];
+  results.forEach((result) => {
+    const meal = result.status === "fulfilled" && result.value ? result.value[0] : null;
+    if (meal && !meals.some((m) => m.idMeal === meal.idMeal)) meals.push(meal);
+  });
+
+  // Every request failed (for example, no internet)
+  if (meals.length === 0) {
+    showStatus("Something went wrong. Please check your internet connection and try again.", true);
+    return;
+  }
+
+  showStatus("✨ Try something new — here are some random recipes");
+  displayRecipes(meals); // reuse the same cards as search results
+}
+
+// Show random recipes as soon as the page opens
+loadRandomRecipes();
