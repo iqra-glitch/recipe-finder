@@ -71,6 +71,7 @@ function displayRecipes(meals) {
     .map(
       (meal) => `
       <article class="card" tabindex="0" data-id="${meal.idMeal}">
+        ${favButtonHTML(meal)} <!-- FEATURE 8: heart button -->
         <img src="${meal.strMealThumb}/medium" alt="${meal.strMeal}" loading="lazy" />
         <div class="card-body">
           <h3 class="card-title">${meal.strMeal}</h3>
@@ -303,3 +304,141 @@ searchForm.addEventListener("submit", () => (areaSelect.value = ""));
 
 // Load the countries as soon as the page opens
 loadAreas();
+
+// ==========================================================
+// FEATURE 8: Favorites (saved in localStorage)
+// ==========================================================
+const FAVORITES_KEY = "recipeFinderFavorites";
+const favoritesBtn = document.getElementById("favorites-btn");
+const favoritesCountEl = document.getElementById("favorites-count");
+
+let favorites = loadFavorites(); // list of saved recipes, kept in memory
+let showingFavorites = false;    // true while the Favorites view is on screen
+
+// Read saved favorites from localStorage (empty list if none or if storage is blocked)
+function loadFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+// Save favorites to localStorage and update the count on the button
+function saveFavorites() {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  } catch (error) {
+    console.error(error); // storage blocked: favorites still work until the page reloads
+  }
+  favoritesCountEl.textContent = favorites.length;
+}
+
+function isFavorite(id) {
+  return favorites.some((fav) => fav.idMeal === id);
+}
+
+// HTML for the heart button on a card (used by displayRecipes)
+function favButtonHTML(meal) {
+  const saved = isFavorite(meal.idMeal);
+  return `<button type="button" class="fav-btn${saved ? " saved" : ""}" aria-pressed="${saved}"
+    aria-label="${saved ? "Remove from favorites" : "Add to favorites"}">${saved ? "♥" : "♡"}</button>`;
+}
+
+// Collect the recipe info shown on a card, so the Favorites view needs no API calls
+function mealFromCard(card) {
+  const tags = card.querySelectorAll(".tag"); // tags are shown in the order: category, area
+  return {
+    idMeal: card.dataset.id,
+    strMeal: card.querySelector(".card-title").textContent,
+    strMealThumb: card.querySelector("img").src.replace(/\/medium$/, ""), // displayRecipes adds "/medium" back
+    strCategory: tags[0] ? tags[0].textContent : "",
+    strArea: tags[1] ? tags[1].textContent : "",
+  };
+}
+
+// Add or remove a recipe when its heart is clicked
+function toggleFavorite(heart) {
+  const card = heart.closest(".card");
+  const id = card.dataset.id;
+
+  if (isFavorite(id)) {
+    favorites = favorites.filter((fav) => fav.idMeal !== id);
+  } else {
+    favorites.push(mealFromCard(card));
+  }
+  saveFavorites();
+
+  // In the Favorites view, redraw so a removed recipe disappears straight away
+  if (showingFavorites) {
+    showFavorites();
+    return;
+  }
+
+  // Otherwise just flip this heart
+  const saved = isFavorite(id);
+  heart.textContent = saved ? "♥" : "♡";
+  heart.classList.toggle("saved", saved);
+  heart.setAttribute("aria-pressed", saved);
+  heart.setAttribute("aria-label", saved ? "Remove from favorites" : "Add to favorites");
+}
+
+// Heart clicks: this "capture" listener (the `true` at the end) runs BEFORE the card's
+// popup listener. Stopping the event here means clicking the heart never opens the popup.
+resultsEl.addEventListener(
+  "click",
+  (event) => {
+    const heart = event.target.closest(".fav-btn");
+    if (!heart) return;
+    event.stopPropagation();
+    toggleFavorite(heart);
+  },
+  true
+);
+
+// Same for the keyboard: pressing Enter on a focused heart must not open the popup.
+// (The browser still turns that Enter into a click, so the heart still toggles.)
+resultsEl.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.target.closest(".fav-btn")) event.stopPropagation();
+  },
+  true
+);
+
+// Show only the saved recipes
+function showFavorites() {
+  showingFavorites = true;
+  favoritesBtn.classList.add("active");
+  setActiveCategory(null); // clear the category highlight
+  areaSelect.value = "";   // reset the country dropdown
+
+  if (favorites.length === 0) {
+    resultsEl.innerHTML = "";
+    showStatus("No favorites yet — tap ♡ on any recipe to save it.");
+    return;
+  }
+
+  showStatus(`Your ${favorites.length} favorite recipe${favorites.length > 1 ? "s" : ""}`);
+  displayRecipes(favorites); // reuse the same cards as search results
+}
+
+favoritesBtn.addEventListener("click", showFavorites);
+
+// Leave the Favorites view when the user searches, picks a category or picks a country
+function leaveFavorites() {
+  showingFavorites = false;
+  favoritesBtn.classList.remove("active");
+}
+
+searchForm.addEventListener("submit", leaveFavorites);
+categoriesEl.addEventListener("click", (event) => {
+  if (event.target.closest(".category-btn")) leaveFavorites();
+});
+areaSelect.addEventListener("change", () => {
+  if (areaSelect.value) leaveFavorites();
+});
+
+// Show the saved count as soon as the page opens
+favoritesCountEl.textContent = favorites.length;

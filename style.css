@@ -361,6 +361,75 @@ body {
 }
 
 /* ==========================================================
+   FEATURE 8: Favorites
+   ========================================================== */
+
+/* Favorites button in the header (same pill style as the category buttons) */
+.favorites-bar {
+  margin-top: 14px;
+}
+
+.favorites-btn {
+  padding: 8px 20px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--card);
+  border: 2px solid var(--tag-bg);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.favorites-btn:hover {
+  border-color: var(--primary);
+}
+
+/* While the Favorites view is showing */
+.favorites-btn.active {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Lets the heart sit on top of the card photo */
+.card {
+  position: relative;
+}
+
+/* Round heart button in the top-right corner of each card */
+.fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;  /* big enough to tap easily on phones */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif; /* keeps ♥ / ♡ as plain text, not an emoji */
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--primary);
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.fav-btn:hover,
+.fav-btn:focus-visible {
+  transform: scale(1.12);
+}
+
+.fav-btn:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================
    FEATURE 5: Small-screen tweaks
    ========================================================== */
 @media (max-width: 480px) {
