@@ -32,7 +32,7 @@ body {
    ========================================================== */
 .header {
   text-align: center;
-  padding: 48px 16px 32px;
+  padding: 28px 16px 20px; /* compact, so recipes show without scrolling */
   background: linear-gradient(135deg, #fff1e6, #fde2d4);
 }
 
@@ -44,7 +44,7 @@ body {
 
 .tagline {
   color: var(--muted);
-  margin: 8px 0 24px;
+  margin: 4px 0 16px;
 }
 
 .search-form {
@@ -90,18 +90,29 @@ body {
 
 /* ==========================================================
    FEATURE 6: Category filter buttons
-   Buttons wrap onto new lines, so there is no sideways scroll on phones
+   All buttons stay in ONE row. If they don't fit, only this row
+   scrolls sideways (swipe on phones) — the page itself never does.
    ========================================================== */
 .categories {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;   /* keep every button on one line */
+  overflow-x: auto;    /* scroll the row sideways when it's too wide */
   gap: 8px;
-  max-width: 720px;
-  margin: 20px auto 0;
+  max-width: 1000px; /* wide enough for all 8 buttons on desktop */
+  margin: 14px auto 0;
+  padding-bottom: 6px; /* room for the thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--tag-bg) transparent;
 }
 
+/* Centre the row when everything fits; when it scrolls, these auto
+   margins become 0 so the first button starts at the left edge */
+.category-btn:first-child { margin-left: auto; }
+.category-btn:last-child  { margin-right: auto; }
+
 .category-btn {
+  flex-shrink: 0;      /* don't squash buttons to fit */
+  white-space: nowrap; /* keep "🍳 Breakfast" on one line */
   padding: 8px 16px;
   font-size: 0.9rem;
   font-family: inherit;
@@ -128,13 +139,22 @@ body {
 /* ==========================================================
    FEATURE 7: Area (country) filter dropdown
    ========================================================== */
+
+/* Country dropdown and Favorites button side by side on one line */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  max-width: 560px; /* same width as the search bar */
+  margin: 10px auto 0;
+}
+
 .area-filter {
-  margin-top: 14px;
+  flex: 1;      /* the dropdown takes the remaining space */
+  min-width: 0; /* lets it shrink on small screens instead of overflowing */
 }
 
 .area-select {
   width: 100%;
-  max-width: 280px; /* full width on phones, compact on bigger screens */
   padding: 10px 16px;
   font-size: 0.95rem;
   font-family: inherit;
@@ -366,10 +386,11 @@ body {
 
 /* Favorites button in the header (same pill style as the category buttons) */
 .favorites-bar {
-  margin-top: 14px;
+  display: flex; /* makes the button the same height as the dropdown next to it */
 }
 
 .favorites-btn {
+  white-space: nowrap; /* keep "♥ Favorites (3)" on one line */
   padding: 8px 20px;
   font-size: 0.95rem;
   font-family: inherit;
@@ -437,4 +458,8 @@ body {
   .search-btn { padding: 14px 18px; }
   .modal-info { padding: 16px 18px 24px; }
   .category-btn { padding: 7px 12px; font-size: 0.85rem; } /* FEATURE 6 */
+  .tagline { display: none; }                                /* save space on phones */
+  .search-form { margin-top: 12px; }                         /* small gap under the title instead */
+  .area-select { padding: 9px 12px; font-size: 0.85rem; }    /* fit dropdown + Favorites on narrow screens */
+  .favorites-btn { padding: 8px 14px; font-size: 0.85rem; }
 }
