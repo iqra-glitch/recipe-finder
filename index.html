@@ -36,6 +36,9 @@
 
     <!-- ========== FEATURE 6: Category filter buttons ========== -->
     <!-- data-category must match TheMealDB's category name exactly -->
+    <!-- FEATURE 10: the wrapper holds the scroll arrows + right-edge fade (shown only when the row can scroll) -->
+    <div id="categories-wrap" class="categories-wrap">
+    <button type="button" class="cat-arrow cat-arrow-left" aria-label="Scroll categories left">‹</button>
     <div id="categories" class="categories">
       <button type="button" class="category-btn" data-category="Chicken">🍗 Chicken</button>
       <button type="button" class="category-btn" data-category="Beef">🥩 Beef</button>
@@ -46,6 +49,8 @@
       <button type="button" class="category-btn" data-category="Breakfast">🍳 Breakfast</button>
       <button type="button" class="category-btn" data-category="Dessert">🍰 Dessert</button>
     </div>
+    <button type="button" class="cat-arrow cat-arrow-right" aria-label="Scroll categories right">›</button>
+    </div> <!-- end .categories-wrap -->
 
     <!-- Country dropdown + Favorites button share one row (see .filter-row in style.css) -->
     <div class="filter-row">

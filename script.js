@@ -493,3 +493,35 @@ async function loadRandomRecipes() {
 
 // Show random recipes as soon as the page opens
 loadRandomRecipes();
+
+// ==========================================================
+// FEATURE 10: Scroll hints for the category row
+// ==========================================================
+const categoriesWrap = document.getElementById("categories-wrap");
+const catArrowLeft = categoriesWrap.querySelector(".cat-arrow-left");
+const catArrowRight = categoriesWrap.querySelector(".cat-arrow-right");
+
+// Check if the row can scroll left/right, and tell the CSS by adding classes.
+// The CSS then shows the matching arrow and the right-edge fade.
+function updateCategoryHints() {
+  const maxScroll = categoriesEl.scrollWidth - categoriesEl.clientWidth;
+  // The "1" allows for tiny rounding differences in browser measurements
+  categoriesWrap.classList.toggle("can-scroll-left", categoriesEl.scrollLeft > 1);
+  categoriesWrap.classList.toggle("can-scroll-right", categoriesEl.scrollLeft < maxScroll - 1);
+}
+
+// Scroll the row by about 70% of its visible width (2–3 buttons)
+function scrollCategories(direction) {
+  categoriesEl.scrollBy({ left: direction * categoriesEl.clientWidth * 0.7, behavior: "smooth" });
+}
+
+catArrowLeft.addEventListener("click", () => scrollCategories(-1));
+catArrowRight.addEventListener("click", () => scrollCategories(1));
+
+// Update the hints whenever the row moves (swipe, mouse, arrows) or the screen size changes
+categoriesEl.addEventListener("scroll", updateCategoryHints);
+window.addEventListener("resize", updateCategoryHints);
+
+// Check once now, and again after the web fonts load (they change the button widths)
+updateCategoryHints();
+document.fonts.ready.then(updateCategoryHints);

@@ -99,7 +99,7 @@ body {
   overflow-x: auto;    /* scroll the row sideways when it's too wide */
   gap: 8px;
   max-width: 1000px; /* wide enough for all 8 buttons on desktop */
-  margin: 14px auto 0;
+  margin: 0 auto;    /* top spacing now comes from .categories-wrap (FEATURE 10) */
   padding-bottom: 6px; /* room for the thin scrollbar */
   scrollbar-width: thin;
   scrollbar-color: var(--tag-bg) transparent;
@@ -448,6 +448,70 @@ body {
 
 .fav-btn:active {
   transform: scale(0.9);
+}
+
+/* ==========================================================
+   FEATURE 10: Scroll hints for the category row
+   script.js adds "can-scroll-left" / "can-scroll-right" to the
+   wrapper, and these rules show the arrows and fade only then.
+   ========================================================== */
+.categories-wrap {
+  position: relative; /* lets the arrows and fade sit on top of the row */
+  max-width: 1000px;
+  margin: 14px auto 0;
+}
+
+/* Soft fade at the right edge: buttons look like they continue off-screen */
+.categories-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 6px;  /* stop above the scrollbar */
+  width: 48px;
+  background: linear-gradient(to right, rgba(253, 226, 212, 0), #fde2d4); /* fades into the header colour */
+  pointer-events: none; /* taps go through to the buttons underneath */
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 1;
+}
+
+.categories-wrap.can-scroll-right::after {
+  opacity: 1;
+}
+
+/* Small round arrow buttons (hidden until needed) */
+.cat-arrow {
+  display: none;
+  position: absolute;
+  top: calc(50% - 3px); /* centred on the buttons, ignoring the scrollbar space */
+  transform: translateY(-50%);
+  z-index: 2; /* above the fade */
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--primary);
+  background: var(--card);
+  border: none;
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.cat-arrow:hover {
+  color: var(--primary-dark);
+}
+
+.cat-arrow-left  { left: 0; }
+.cat-arrow-right { right: 0; }
+
+/* Show each arrow only when the row can scroll that way */
+.categories-wrap.can-scroll-left .cat-arrow-left,
+.categories-wrap.can-scroll-right .cat-arrow-right {
+  display: flex;
 }
 
 /* ==========================================================
