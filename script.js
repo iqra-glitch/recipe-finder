@@ -546,12 +546,15 @@ const PLACEHOLDER_IMG =
   <text x="200" y="205" font-family="Poppins, sans-serif" font-size="20" fill="#c8431d" text-anchor="middle">Image coming soon</text>
 </svg>`);
 
-// Pick the right image for a recipe (used by the cards and the popup)
+// Pick the right image for a recipe (used by the cards, the popup and Favorites)
 function recipeImage(meal, size) {
   const src = meal.strMealThumb;
-  if (!src) return PLACEHOLDER_IMG;          // empty image -> placeholder
-  if (src.startsWith("data:")) return src;   // placeholder saved in Favorites stays as it is
-  return size ? `${src}/${size}` : src;      // API image, e.g. ".../photo.jpg/medium" for cards
+  if (!src) return PLACEHOLDER_IMG; // empty image -> placeholder
+
+  // Only TheMealDB images have smaller versions like ".../photo.jpg/medium".
+  // Local images (e.g. "images/nihari.jpg") and the placeholder are used as they are.
+  const isMealDbImage = src.startsWith("https://www.themealdb.com/");
+  return isMealDbImage && size ? `${src}/${size}` : src;
 }
 
 // "Pakistan" (from the dropdown) and "Pakistani" (in the file) mean the same thing
