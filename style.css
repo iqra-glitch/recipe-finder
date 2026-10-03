@@ -98,7 +98,7 @@ body {
   flex-wrap: nowrap;   /* keep every button on one line */
   overflow-x: auto;    /* scroll the row sideways when it's too wide */
   gap: 8px;
-  max-width: 1000px; /* wide enough for all 8 buttons on desktop */
+  max-width: 1160px; /* wide enough for all 9 buttons on desktop */
   margin: 0 auto;    /* top spacing now comes from .categories-wrap (FEATURE 10) */
   padding-bottom: 6px; /* room for the thin scrollbar */
   scrollbar-width: thin;
@@ -457,7 +457,7 @@ body {
    ========================================================== */
 .categories-wrap {
   position: relative; /* lets the arrows and fade sit on top of the row */
-  max-width: 1000px;
+  max-width: 1160px;  /* same as .categories */
   margin: 14px auto 0;
 }
 
