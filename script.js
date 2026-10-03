@@ -72,7 +72,7 @@ function displayRecipes(meals) {
       (meal) => `
       <article class="card" tabindex="0" data-id="${meal.idMeal}">
         ${favButtonHTML(meal)} <!-- FEATURE 8: heart button -->
-        <img src="${meal.strMealThumb}/medium" alt="${meal.strMeal}" loading="lazy" />
+        <img src="${recipeImage(meal, "medium")}" alt="${meal.strMeal}" loading="lazy" />
         <div class="card-body">
           <h3 class="card-title">${meal.strMeal}</h3>
           ${meal.strCategory ? `<span class="tag">${meal.strCategory}</span>` : ""}
@@ -113,7 +113,8 @@ async function showRecipeDetails(id) {
   modalBody.innerHTML = `<p class="status" style="padding:40px 0">Loading recipe...</p>`;
 
   try {
-    const meals = await fetchMeals(`${API_BASE}/lookup.php?i=${id}`);
+    // FEATURE 11: Pakistani recipes ("pk-" ids) come from the local file, all others from the API
+    const meals = isLocalRecipe(id) ? await findLocalRecipe(id) : await fetchMeals(`${API_BASE}/lookup.php?i=${id}`);
     if (!meals) throw new Error("Recipe not found");
     renderRecipe(meals[0]);
   } catch (error) {
@@ -142,7 +143,7 @@ function renderRecipe(meal) {
     .map((line) => `<li>${line}</li>`);
 
   modalBody.innerHTML = `
-    <img class="modal-img" src="${meal.strMealThumb}" alt="${meal.strMeal}" />
+    <img class="modal-img" src="${recipeImage(meal)}" alt="${meal.strMeal}" />
     <div class="modal-info">
       <h2 id="modal-title">${meal.strMeal}</h2>
       ${meal.strCategory ? `<span class="tag">${meal.strCategory}</span>` : ""}
@@ -273,6 +274,9 @@ areaSelect.addEventListener("change", () => {
 
 // Fetch all recipes for one country and show them as cards
 async function filterByArea(country) {
+  // FEATURE 11: Pakistan uses the local recipe file instead of the API
+  if (isPakistan(country)) return showLocalAreaRecipes(country);
+
   showStatus(`Loading recipes from ${country}...`);
   resultsEl.innerHTML = ""; // clear old results
 
@@ -525,3 +529,87 @@ window.addEventListener("resize", updateCategoryHints);
 // Check once now, and again after the web fonts load (they change the button widths)
 updateCategoryHints();
 document.fonts.ready.then(updateCategoryHints);
+
+// ==========================================================
+// FEATURE 11: Local Pakistani recipes (pakistani-recipes.json)
+// Note: browsers only allow reading this file when the site runs on a
+// server (e.g. VS Code Live Server or GitHub Pages), not from file:///
+// ==========================================================
+const LOCAL_RECIPES_FILE = "pakistani-recipes.json";
+
+// Shown when a recipe has no image: peach background, 🍲 and "Image coming soon"
+const PLACEHOLDER_IMG =
+  "data:image/svg+xml;charset=UTF-8," +
+  encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#fde9df"/>
+  <text x="200" y="150" font-size="64" text-anchor="middle">🍲</text>
+  <text x="200" y="205" font-family="Poppins, sans-serif" font-size="20" fill="#c8431d" text-anchor="middle">Image coming soon</text>
+</svg>`);
+
+// Pick the right image for a recipe (used by the cards and the popup)
+function recipeImage(meal, size) {
+  const src = meal.strMealThumb;
+  if (!src) return PLACEHOLDER_IMG;          // empty image -> placeholder
+  if (src.startsWith("data:")) return src;   // placeholder saved in Favorites stays as it is
+  return size ? `${src}/${size}` : src;      // API image, e.g. ".../photo.jpg/medium" for cards
+}
+
+// "Pakistan" (from the dropdown) and "Pakistani" (in the file) mean the same thing
+function isPakistan(name) {
+  return ["pakistan", "pakistani"].includes(String(name || "").trim().toLowerCase());
+}
+
+// Local recipe ids start with "pk-" (TheMealDB ids are numbers)
+function isLocalRecipe(id) {
+  return String(id).startsWith("pk-");
+}
+
+// Read the JSON file once and remember it, so it isn't downloaded again
+let localRecipesPromise = null;
+
+function loadLocalRecipes() {
+  if (!localRecipesPromise) {
+    localRecipesPromise = fetch(LOCAL_RECIPES_FILE)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Could not read ${LOCAL_RECIPES_FILE}: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => data.meals || []);
+
+    // If it fails, forget the failed attempt so the next click can try again
+    localRecipesPromise.catch(() => (localRecipesPromise = null));
+  }
+  return localRecipesPromise;
+}
+
+// Find one local recipe for the popup (returns a list, just like fetchMeals)
+async function findLocalRecipe(id) {
+  const recipes = await loadLocalRecipes();
+  const meal = recipes.find((recipe) => recipe.idMeal === id);
+  return meal ? [meal] : null;
+}
+
+// Show the local recipes for Pakistan as cards (called by filterByArea)
+async function showLocalAreaRecipes(country) {
+  showStatus(`Loading recipes from ${country}...`);
+  resultsEl.innerHTML = ""; // clear old results
+
+  try {
+    const recipes = await loadLocalRecipes();
+    const meals = recipes.filter((meal) => isPakistan(meal.strArea));
+
+    if (meals.length === 0) {
+      showStatus(`No recipes found for ${country} yet.`);
+      return;
+    }
+
+    showStatus(`Found ${meals.length} recipe${meals.length > 1 ? "s" : ""} from ${country}`);
+    displayRecipes(meals); // reuse the same cards as search results
+  } catch (error) {
+    console.error(error);
+    showStatus(
+      "Couldn't load the Pakistani recipes. Open the site through a local server (e.g. VS Code Live Server).",
+      true
+    );
+  }
+}
