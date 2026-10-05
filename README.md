@@ -15,7 +15,6 @@ A simple recipe website. Search and browse recipes from [TheMealDB](https://www.
 - Country filter dropdown, with the country list loaded from TheMealDB
 - Favorites: tap ♡ on a card to save it, and view saved recipes with the ♥ Favorites button (saved in the browser)
 - 10 local Pakistani recipes with their own photos, shown by the 🍛 Pakistani Food button or by choosing "Pakistan" in the country dropdown
-- Placeholder image for any recipe without a photo
 - Loading, "no results" and error messages
 - Mobile-friendly, compact header
 
