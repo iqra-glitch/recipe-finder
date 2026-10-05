@@ -527,3 +527,70 @@ body {
   .area-select { padding: 9px 12px; font-size: 0.85rem; }    /* fit dropdown + Favorites on narrow screens */
   .favorites-btn { padding: 8px 14px; font-size: 0.85rem; }
 }
+
+/* ==========================================================
+   FEATURE 13: Print button in the recipe popup
+   ========================================================== */
+.print-btn {
+  display: block;   /* on its own line, under the tags */
+  margin-top: 14px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--primary-dark);
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.print-btn:hover {
+  color: #fff;
+  background: var(--primary);
+}
+
+/* Print layout: when the popup is open, print ONLY the recipe.
+   (":has" checks whether the popup is open, so printing the normal page still works.) */
+@media print {
+  body:has(.modal:not(.hidden)) .header,
+  body:has(.modal:not(.hidden)) .container {
+    display: none; /* hide the header and recipe cards */
+  }
+
+  body {
+    overflow: visible !important; /* the popup sets overflow hidden; let long recipes continue onto the next page */
+    background: #fff;
+  }
+
+  .modal {
+    position: static; /* print in normal page flow, not as a floating box */
+    display: block;
+    padding: 0;
+    background: none; /* no dark overlay */
+  }
+
+  .modal.hidden {
+    display: none;
+  }
+
+  .modal-content {
+    max-width: none;
+    max-height: none; /* show the whole recipe, no scroll box */
+    overflow: visible;
+    border-radius: 0;
+    animation: none;
+  }
+
+  .modal-img {
+    max-height: 220px; /* smaller photo so most recipes fit on one page */
+  }
+
+  /* Buttons and links are useless on paper */
+  .modal-close,
+  .print-btn,
+  .video-link {
+    display: none;
+  }
+}

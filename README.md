@@ -9,7 +9,7 @@ A simple recipe website. Search and browse recipes from [TheMealDB](https://www.
 - Search recipes by name or ingredient (Search button or Enter key)
 - Random recipe ideas shown when the page opens
 - Recipe cards with photo, name and category/country tags, in a responsive grid
-- Details popup with ingredients, numbered steps and a YouTube link when available
+- Details popup with ingredients, numbered steps, a YouTube link when available, and a Print button
 - 8 category buttons: Chicken, Beef, Seafood, Pasta, Vegetarian, Vegan, Breakfast, Dessert
 - Scrollable category row with arrows and an edge fade on small screens
 - Country filter dropdown, with the country list loaded from TheMealDB

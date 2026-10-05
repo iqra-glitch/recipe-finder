@@ -148,6 +148,7 @@ function renderRecipe(meal) {
       <h2 id="modal-title">${meal.strMeal}</h2>
       ${meal.strCategory ? `<span class="tag">${meal.strCategory}</span>` : ""}
       ${meal.strArea ? `<span class="tag">${meal.strArea}</span>` : ""}
+      <button type="button" class="print-btn">🖨 Print recipe</button> <!-- FEATURE 13 -->
 
       <h3>Ingredients</h3>
       <ul class="ingredients">${ingredients.join("")}</ul>
@@ -645,3 +646,12 @@ categoriesEl.addEventListener(
   },
   true
 );
+
+// ==========================================================
+// FEATURE 13: Print button in the recipe popup
+// The button is added by renderRecipe(). The print layout
+// (only the recipe, no header or cards) is in style.css.
+// ==========================================================
+modalBody.addEventListener("click", (event) => {
+  if (event.target.closest(".print-btn")) window.print(); // opens the browser's print dialog
+});
