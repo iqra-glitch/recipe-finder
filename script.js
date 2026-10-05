@@ -616,3 +616,32 @@ async function showLocalAreaRecipes(country) {
     );
   }
 }
+
+// ==========================================================
+// FEATURE 12: "🍛 Pakistani Food" button in the category row
+// It looks and highlights like the other category buttons,
+// but shows the local recipes instead of calling the API.
+// ==========================================================
+
+// This "capture" listener (the `true` at the end) runs BEFORE the row's other
+// click listeners. For the Pakistani button we stop the click there, so the
+// normal category code (which would call the API) never sees it.
+categoriesEl.addEventListener(
+  "click",
+  (event) => {
+    const button = event.target.closest(".pakistani-btn");
+    if (!button) return; // any other category button works as before
+
+    event.stopPropagation();
+
+    // Do what the row's other listeners would normally do for a category click
+    setActiveCategory(button); // highlight this button (and un-highlight the rest)
+    areaSelect.value = "";     // reset the country dropdown
+    leaveFavorites();          // leave the Favorites view
+    userHasChosen = true;      // late random recipes must not replace these results
+
+    // Show all the recipes from pakistani-recipes.json (no API)
+    showLocalAreaRecipes("Pakistan");
+  },
+  true
+);
