@@ -5,6 +5,10 @@
 
 const API_BASE = "https://www.themealdb.com/api/json/v1/1";
 
+// My own Node.js/Express recipe server (recipe-api) for the Pakistani recipes.
+// Change this one line if the server moves to another address.
+const RECIPE_SERVER = "http://localhost:3000";
+
 // Grab the page elements we need
 const searchForm = document.getElementById("search-form");
 const searchInput = document.getElementById("search-input");
@@ -113,13 +117,14 @@ async function showRecipeDetails(id) {
   modalBody.innerHTML = `<p class="status" style="padding:40px 0">Loading recipe...</p>`;
 
   try {
-    // FEATURE 11: Pakistani recipes ("pk-" ids) come from the local file, all others from the API
+    // FEATURE 11: Pakistani recipes ("pk-" ids) come from the recipe server, all others from the API
     const meals = isLocalRecipe(id) ? await findLocalRecipe(id) : await fetchMeals(`${API_BASE}/lookup.php?i=${id}`);
     if (!meals) throw new Error("Recipe not found");
     renderRecipe(meals[0]);
   } catch (error) {
     console.error(error);
-    modalBody.innerHTML = `<p class="status error" style="padding:40px 0">Could not load this recipe. Please try again.</p>`;
+    // error.userMessage is set when the recipe server can't be reached (FEATURE 11)
+    modalBody.innerHTML = `<p class="status error" style="padding:40px 0">${error.userMessage || "Could not load this recipe. Please try again."}</p>`;
   }
 }
 
@@ -532,11 +537,12 @@ updateCategoryHints();
 document.fonts.ready.then(updateCategoryHints);
 
 // ==========================================================
-// FEATURE 11: Local Pakistani recipes (pakistani-recipes.json)
-// Note: browsers only allow reading this file when the site runs on a
-// server (e.g. VS Code Live Server or GitHub Pages), not from file:///
+// FEATURE 11: Pakistani recipes from my recipe server (RECIPE_SERVER at the top)
+// GET /recipes      -> list of all Pakistani recipes
+// GET /recipes/:id  -> one recipe (404 if the id doesn't exist)
+// The recipe server must be running: node server.js (in the recipe-api folder)
 // ==========================================================
-const LOCAL_RECIPES_FILE = "pakistani-recipes.json";
+const SERVER_DOWN_MESSAGE = "Couldn't reach the recipe server. Start it with node server.js.";
 
 // Shown when a recipe has no image: peach background, 🍲 and "Image coming soon"
 const PLACEHOLDER_IMG =
@@ -563,37 +569,40 @@ function isPakistan(name) {
   return ["pakistan", "pakistani"].includes(String(name || "").trim().toLowerCase());
 }
 
-// Local recipe ids start with "pk-" (TheMealDB ids are numbers)
+// Pakistani recipe ids start with "pk-" (TheMealDB ids are numbers)
 function isLocalRecipe(id) {
   return String(id).startsWith("pk-");
 }
 
-// Read the JSON file once and remember it, so it isn't downloaded again
-let localRecipesPromise = null;
-
-function loadLocalRecipes() {
-  if (!localRecipesPromise) {
-    localRecipesPromise = fetch(LOCAL_RECIPES_FILE)
-      .then((response) => {
-        if (!response.ok) throw new Error(`Could not read ${LOCAL_RECIPES_FILE}: ${response.status}`);
-        return response.json();
-      })
-      .then((data) => data.meals || []);
-
-    // If it fails, forget the failed attempt so the next click can try again
-    localRecipesPromise.catch(() => (localRecipesPromise = null));
+// Ask the recipe server for something, e.g. fetchFromServer("/recipes").
+// If the server isn't running, fetch() fails; we then throw an error that
+// carries the friendly SERVER_DOWN_MESSAGE so the page can show it.
+async function fetchFromServer(path) {
+  try {
+    return await fetch(`${RECIPE_SERVER}${path}`);
+  } catch (networkError) {
+    const error = new Error(SERVER_DOWN_MESSAGE);
+    error.userMessage = SERVER_DOWN_MESSAGE;
+    throw error;
   }
-  return localRecipesPromise;
 }
 
-// Find one local recipe for the popup (returns a list, just like fetchMeals)
+// Get all Pakistani recipes from the server (asked fresh every time)
+async function loadLocalRecipes() {
+  const response = await fetchFromServer("/recipes");
+  if (!response.ok) throw new Error(`Recipe server error: ${response.status}`);
+  return response.json(); // the server sends a plain list of recipes
+}
+
+// Get one Pakistani recipe for the popup (returns a list, just like fetchMeals)
 async function findLocalRecipe(id) {
-  const recipes = await loadLocalRecipes();
-  const meal = recipes.find((recipe) => recipe.idMeal === id);
-  return meal ? [meal] : null;
+  const response = await fetchFromServer(`/recipes/${encodeURIComponent(id)}`);
+  if (response.status === 404) return null; // no recipe with this id
+  if (!response.ok) throw new Error(`Recipe server error: ${response.status}`);
+  return [await response.json()]; // the server sends one recipe
 }
 
-// Show the local recipes for Pakistan as cards (called by filterByArea)
+// Show the Pakistani recipes as cards (used by the country filter and the Pakistani Food button)
 async function showLocalAreaRecipes(country) {
   showStatus(`Loading recipes from ${country}...`);
   resultsEl.innerHTML = ""; // clear old results
@@ -611,17 +620,15 @@ async function showLocalAreaRecipes(country) {
     displayRecipes(meals); // reuse the same cards as search results
   } catch (error) {
     console.error(error);
-    showStatus(
-      "Couldn't load the Pakistani recipes. Open the site through a local server (e.g. VS Code Live Server).",
-      true
-    );
+    // Server not running -> the clear "Couldn't reach the recipe server..." message
+    showStatus(error.userMessage || "Something went wrong with the recipe server. Please try again.", true);
   }
 }
 
 // ==========================================================
 // FEATURE 12: "🍛 Pakistani Food" button in the category row
 // It looks and highlights like the other category buttons,
-// but shows the local recipes instead of calling the API.
+// but shows the Pakistani recipes from my recipe server instead of TheMealDB.
 // ==========================================================
 
 // This "capture" listener (the `true` at the end) runs BEFORE the row's other
@@ -641,7 +648,7 @@ categoriesEl.addEventListener(
     leaveFavorites();          // leave the Favorites view
     userHasChosen = true;      // late random recipes must not replace these results
 
-    // Show all the recipes from pakistani-recipes.json (no API)
+    // Show all the Pakistani recipes from the recipe server (not TheMealDB)
     showLocalAreaRecipes("Pakistan");
   },
   true
