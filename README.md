@@ -40,4 +40,4 @@ If the recipe server is not running, the Pakistani recipes show "Couldn't reach 
 - Many countries in the dropdown have no recipes in TheMealDB yet.
 - An internet connection is needed for the TheMealDB recipes.
 - Favorites are saved only in the browser you use.
-- The live demo cannot show the Pakistani recipes, because the recipe server only runs on your own computer.
+- The recipe server is hosted on Vercel (https://recipe-api-three-cyan.vercel.app), so the Pakistani recipes also work on the live demo.

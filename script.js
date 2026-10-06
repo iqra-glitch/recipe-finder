@@ -7,7 +7,7 @@ const API_BASE = "https://www.themealdb.com/api/json/v1/1";
 
 // My own Node.js/Express recipe server (recipe-api) for the Pakistani recipes.
 // Change this one line if the server moves to another address.
-const RECIPE_SERVER = "http://localhost:3000";
+const RECIPE_SERVER = "https://recipe-api-three-cyan.vercel.app";
 
 // Grab the page elements we need
 const searchForm = document.getElementById("search-form");
