@@ -540,9 +540,9 @@ document.fonts.ready.then(updateCategoryHints);
 // FEATURE 11: Pakistani recipes from my recipe server (RECIPE_SERVER at the top)
 // GET /recipes      -> list of all Pakistani recipes
 // GET /recipes/:id  -> one recipe (404 if the id doesn't exist)
-// The recipe server must be running: node server.js (in the recipe-api folder)
+// The recipe server is hosted on Vercel (see RECIPE_SERVER)
 // ==========================================================
-const SERVER_DOWN_MESSAGE = "Couldn't reach the recipe server. Start it with node server.js.";
+const SERVER_DOWN_MESSAGE = "Couldn't reach the recipe server. Please try again later.";
 
 // Shown when a recipe has no image: peach background, 🍲 and "Image coming soon"
 const PLACEHOLDER_IMG =

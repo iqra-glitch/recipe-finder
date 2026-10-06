@@ -1,6 +1,6 @@
 # Recipe Finder
 
-A simple recipe website. Search and browse recipes from [TheMealDB](https://www.themealdb.com/) free API, and explore 10 Pakistani recipes from my own recipe server.
+A simple recipe website. Search and browse recipes from [TheMealDB](https://www.themealdb.com/) free API, and explore 10 Pakistani recipes from my own Express API on Vercel.
 
 **Live demo:** https://iqra-glitch.github.io/recipe-finder/
 
@@ -14,7 +14,7 @@ A simple recipe website. Search and browse recipes from [TheMealDB](https://www.
 - Scrollable category row with arrows and an edge fade on small screens
 - Country filter dropdown, with the country list loaded from TheMealDB
 - Favorites: tap ♡ on a card to save it, and view saved recipes with the ♥ Favorites button (saved in the browser)
-- 10 Pakistani recipes with their own photos, served by a local Node.js/Express recipe server and shown by the 🍛 Pakistani Food button or by choosing "Pakistan" in the country dropdown
+- 10 Pakistani recipes with their own photos, served by my Node.js/Express API on Vercel and shown by the 🍛 Pakistani Food button or by choosing "Pakistan" in the country dropdown
 - Loading, "no results" and error messages
 - Mobile-friendly, compact header
 
@@ -24,15 +24,16 @@ A simple recipe website. Search and browse recipes from [TheMealDB](https://www.
 - [TheMealDB](https://www.themealdb.com/api.php) free API
 - Google Fonts (Playfair Display and Poppins)
 - Browser localStorage (for Favorites)
-- A Node.js + Express recipe server (`recipe-api`) for the Pakistani recipes
+- My Node.js + Express API (`recipe-api`), hosted on [Vercel](https://recipe-api-three-cyan.vercel.app), for the Pakistani recipes
 
 ## Run locally
 
-1. Start the recipe server: open a terminal in the `recipe-api` folder and run `node server.js`. It runs at `http://localhost:3000`.
-2. Download or clone this repository and open the folder in VS Code.
-3. Install the **Live Server** extension, then right-click `index.html` and choose **Open with Live Server**.
+1. Download or clone this repository and open the folder in VS Code.
+2. Install the **Live Server** extension, then right-click `index.html` and choose **Open with Live Server**.
 
-If the recipe server is not running, the Pakistani recipes show "Couldn't reach the recipe server. Start it with node server.js." (the rest of the site still works). The server address is set in `RECIPE_SERVER` at the top of `script.js`.
+Use Live Server rather than double-clicking `index.html`: the API only accepts requests from Live Server and the live demo, so a double-clicked page cannot load the Pakistani recipes.
+
+If the API cannot be reached, the Pakistani recipes show "Couldn't reach the recipe server. Please try again later." (the rest of the site still works). The API address is set in `RECIPE_SERVER` at the top of `script.js`.
 
 ## Notes
 
